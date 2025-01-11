@@ -87,20 +87,86 @@ In advanced stages, the focus shifts to improving query performance. Some optimi
 2. Write a query to find tracks where the liveness score is above the average.
 3. **Use a `WITH` clause to calculate the difference between the highest and lowest energy values for tracks in each album.**
 ```sql
-WITH cte
-AS
+select * from data;
+
+
+-- Retrieve the names of all tracks that have more than 
+-- 1 billion streams.
+select track from data where stream>1000000000;
+
+
+-- List all albums along with their respective artists.
+select Album , Artist from data;
+
+-- Get the total number of comments for tracks where 
+-- licensed = TRUE
+select count(Comments) from data where Licensed ='True';
+
+
+-- Find all tracks that belong to the album type single.
+select * from data where Album_type  like  "single%";
+
+-- Count the total number of tracks by each artist.
+select Artist,count(Track) as no_of_track from data group by Artist;
+
+
+-- intermediate questions
+
+-- Calculate the average danceability of tracks in each album.
+select Track,avg(Danceability) as avg_danceability from data group by Track;
+
+
+-- Find the top 5 tracks with the highest energy values.
+select Track from data order by Energy desc limit 5;
+
+
+-- List all tracks along with 
+-- their views and likes where official_video = TRUE.
+
+select Track,Views,Likes from data where official_video = 'True';
+
+
+-- For each album, calculate the total views of all associated 
+-- tracks
+select Album , sum(Views) as total_views from data group by Album; 
+
+
+-- Retrieve the track names that have been streamed 
+-- on Spotify more than YouTube.alter
+select * from data;
+select Track , sum(Stream) from data where most_playedon = 'Spotify' group by Track 
+having (select 
+			case when sum(;
+
+
+
+-- Advanced 
+
+-- Find the top 3 most-viewed tracks for each artist using window functions.
+
+with cte as 
 (SELECT 
-	album,
-	MAX(energy) as highest_energy,
-	MIN(energy) as lowest_energery
-FROM spotify
-GROUP BY 1
-)
-SELECT 
-	album,
-	highest_energy - lowest_energery as energy_diff
-FROM cte
-ORDER BY 2 DESC
+    Artist, 
+    Track, 
+    SUM(Views) AS total_views,
+    DENSE_RANK() OVER (PARTITION BY Artist ORDER BY SUM(Views) DESC) AS rnk
+FROM 
+    data
+GROUP BY 
+    Artist, Track)
+select * from cte where rnk<4;
+
+-- Write a query to find tracks where the liveness score is above the average.
+select Track from data where Liveness > (select avg(Liveness) from data);
+
+
+-- Use a WITH clause to calculate the difference between the highest and lowest energy values for tracks in each album.
+with cte as
+(select Album , max(Energy) as hi, min(Energy) as lo from data group by Album)
+select Album , round(hi-lo,2) as diff from cte;
+
+
+
 ```
    
 5. Find tracks where the energy-to-liveness ratio is greater than 1.2.
