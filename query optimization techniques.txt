@@ -1,0 +1,7 @@
+1) use column names instead of *
+2) use group by instead of distinct
+3) create indexes for better searching 
+		create index idx table_name(column)
+4) use limit/Top to get the highest values instead of showing all the things
+5) use primary keys instead 
+6) using (nolock) makes it faster
